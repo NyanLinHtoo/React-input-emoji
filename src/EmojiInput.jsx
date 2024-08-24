@@ -1,13 +1,34 @@
 import Picker from "@emoji-mart/react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const EmojiInput = () => {
   const [isEmojiBoxOpen, setIsEmojiBoxOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
+  const pickerRef = useRef(null);
 
   const handleEmojiSelect = (emoji) => {
     setInputValue(inputValue + emoji.native);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      console.log("Hello");
+
+      if (
+        isEmojiBoxOpen &&
+        pickerRef.current &&
+        !pickerRef.current.contains(e.target)
+      ) {
+        setIsEmojiBoxOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isEmojiBoxOpen]);
 
   return (
     <>
@@ -35,17 +56,19 @@ const EmojiInput = () => {
       </form>
 
       {isEmojiBoxOpen && (
-        <Picker
-          onEmojiSelect={handleEmojiSelect}
-          theme="dark"
-          style={{
-            width: "400px",
-            minWidth: "250px",
-            resize: "horizontal",
-            overflow: "auto",
-          }}
-          previewPosition="none"
-        />
+        <div ref={pickerRef}>
+          <Picker
+            onEmojiSelect={handleEmojiSelect}
+            theme="dark"
+            style={{
+              width: "400px",
+              minWidth: "250px",
+              resize: "horizontal",
+              overflow: "auto",
+            }}
+            previewPosition="none"
+          />
+        </div>
       )}
     </>
   );
